@@ -66,7 +66,7 @@ def getImuCsvFiles(dir):
     return imu_files
 
 def loadImageToRosMsg(filename):
-    image_np = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    image_np = cv2.imread(filename, cv2.IMREAD_COLOR)
     
     timestamp_nsecs = os.path.splitext(os.path.basename(filename))[0]
     timestamp = rospy.Time( secs=int(timestamp_nsecs[0:-9]), nsecs=int(timestamp_nsecs[-9:]) )
@@ -75,8 +75,8 @@ def loadImageToRosMsg(filename):
     rosimage.header.stamp = timestamp
     rosimage.height = image_np.shape[0]
     rosimage.width = image_np.shape[1]
-    rosimage.step = rosimage.width  #only with mono8! (step = width * byteperpixel * numChannels)
-    rosimage.encoding = "mono8"
+    rosimage.step = image_np.shape[1]*image_np.shape[2]  #only with mono8! (step = width * byteperpixel * numChannels)
+    rosimage.encoding = "bgr8"
     rosimage.data = image_np.tobytes()
     
     return rosimage, timestamp
