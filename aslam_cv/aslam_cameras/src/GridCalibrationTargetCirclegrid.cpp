@@ -71,9 +71,9 @@ bool GridCalibrationTargetCirclegrid::computeObservation(const cv::Mat & image,
 
   bool success = false;
   if(_options.useAsymmetricCirclegrid)
-    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_ASYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING);
+    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_ASYMMETRIC_GRID);
   else
-    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING);
+    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_SYMMETRIC_GRID);
 
 
   //draw corners
