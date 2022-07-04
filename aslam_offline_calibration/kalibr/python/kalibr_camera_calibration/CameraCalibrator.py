@@ -18,6 +18,8 @@ import math
 import gc
 import sys
 
+from math import sqrt
+
 np.set_printoptions(suppress=True, precision=8)
 
 #DV group IDs
@@ -380,6 +382,30 @@ def getReprojectionErrorStatistics(all_rerrs):
 
     return mean, std
 
+def getReprojectionErrorOpenCVRms(all_rerrs):
+    """
+    usage:  all_corners, all_reprojections, all_reprojection_errs = getReprojectionErrors(calibrator, 0)
+            rms = getReprojectionErrorOpenCVRms(all_reprojections)
+    """
+    if not len(all_rerrs)>0:
+        raise RuntimeError("rerrs has invalid dimension")
+
+    gc.disable() #append speed up
+    rerr_matrix=list();
+    for view_id, view_rerrs in enumerate(all_rerrs):
+        if view_rerrs is not None: #if cam sees target in this view
+            for rerr in view_rerrs:
+                if not (rerr==np.array([None,None])).all(): #if corner was observed
+                    rerr_matrix.append(np.linalg.norm(rerr) ** 2)
+
+
+    rerr_matrix = np.array(rerr_matrix)
+    gc.enable()
+
+    rms = sqrt(np.mean(rerr_matrix, 0, dtype=np.float))
+
+    return rms
+
 #return a list (views) of a list (reprojection errors) for a cam
 def getReprojectionErrors(cself, cam_id):
     all_corners = list(); all_reprojections = list(); all_reprojection_errs =list()
@@ -599,8 +625,10 @@ def printParameters(cself, dest=sys.stdout):
         corners, reprojs, rerrs = getReprojectionErrors(cself, cidx)
         if len(rerrs)>0:
             me, se = getReprojectionErrorStatistics(rerrs)
+            rms = getReprojectionErrorOpenCVRms(rerrs)
             try:
               print("\t reprojection error: [%f, %f] +- [%f, %f]" % (me[0], me[1], se[0], se[1]), file=dest)
+              print("\t OpenCV reprojection error RMS: %f" % rms, file=dest)
             except:
               print("\t Failed printing the reprojection error.", file=dest)
             print(file=dest)
