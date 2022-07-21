@@ -67,14 +67,23 @@ bool GridCalibrationTargetCirclegrid::computeObservation(const cv::Mat & image,
   cv::Size patternSize(cols(), rows());
   cv::Mat centers(size(), 2, CV_64FC1);
 
-  //equalizeHist(image, image);
-
   bool success = false;
-  if(_options.useAsymmetricCirclegrid)
-    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_ASYMMETRIC_GRID);
-  else
-    success = cv::findCirclesGrid( image, patternSize, centers, cv::CALIB_CB_SYMMETRIC_GRID);
+  int gridFlags = _options.useAsymmetricCirclegrid ? cv::CALIB_CB_ASYMMETRIC_GRID: cv::CALIB_CB_SYMMETRIC_GRID;
+  success = cv::findCirclesGrid( image, patternSize, centers, gridFlags);
 
+  if(!success) {
+    cv::Mat equilized;
+    equalizeHist(image, equilized);
+    success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags);
+
+    if(!success) {
+      gridFlags |= cv::CALIB_CB_CLUSTERING;
+      success = cv::findCirclesGrid( image, patternSize, centers, gridFlags );
+    }
+
+    if(!success)
+      success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags );
+  }
 
   //draw corners
   if (_options.showExtractionVideo) {
