@@ -67,7 +67,7 @@ bool GridCalibrationTargetCirclegrid::computeObservation(const cv::Mat & image,
   cv::Size patternSize(cols(), rows());
   cv::Mat centers(size(), 2, CV_64FC1);
 
-  equalizeHist(image, image);
+  //equalizeHist(image, image);
 
   bool success = false;
   if(_options.useAsymmetricCirclegrid)
