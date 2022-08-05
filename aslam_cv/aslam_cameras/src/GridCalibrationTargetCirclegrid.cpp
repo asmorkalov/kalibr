@@ -67,22 +67,26 @@ bool GridCalibrationTargetCirclegrid::computeObservation(const cv::Mat & image,
   cv::Size patternSize(cols(), rows());
   cv::Mat centers(size(), 2, CV_64FC1);
 
+  cv::SimpleBlobDetector::Params params;
+  params.minRepeatability = 1;
+  cv::Ptr< cv::FeatureDetector > blobDetectorPtr = cv::SimpleBlobDetector::create(params);
+
   bool success = false;
   int gridFlags = _options.useAsymmetricCirclegrid ? cv::CALIB_CB_ASYMMETRIC_GRID: cv::CALIB_CB_SYMMETRIC_GRID;
-  success = cv::findCirclesGrid( image, patternSize, centers, gridFlags);
+  success = cv::findCirclesGrid( image, patternSize, centers, gridFlags, blobDetectorPtr);
 
   if(!success) {
     cv::Mat equilized;
     equalizeHist(image, equilized);
-    success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags);
+    success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags, blobDetectorPtr);
 
     if(!success) {
       gridFlags |= cv::CALIB_CB_CLUSTERING;
-      success = cv::findCirclesGrid( image, patternSize, centers, gridFlags );
+      success = cv::findCirclesGrid( image, patternSize, centers, gridFlags, blobDetectorPtr);
     }
 
     if(!success)
-      success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags );
+      success = cv::findCirclesGrid( equilized, patternSize, centers, gridFlags, blobDetectorPtr);
   }
 
   //draw corners
