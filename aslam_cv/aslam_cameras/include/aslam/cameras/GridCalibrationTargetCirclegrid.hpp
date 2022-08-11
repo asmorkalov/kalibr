@@ -4,6 +4,7 @@
 #include <vector>
 #include <Eigen/Core>
 #include <opencv2/core/core.hpp>
+#include <opencv2/features2d.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/export.hpp>
 #include <sm/assert_macros.hpp>
@@ -71,6 +72,8 @@ class GridCalibrationTargetCirclegrid : public GridCalibrationTargetBase {
 
   /// \brief grid options
   CirclegridOptions _options;
+
+  cv::SimpleBlobDetector::Params blobDetectorSettings;
 
   ///////////////////////////////////////////////////
   // Serialization support

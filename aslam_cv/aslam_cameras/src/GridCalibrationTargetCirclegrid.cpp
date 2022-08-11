@@ -34,6 +34,14 @@ void GridCalibrationTargetCirclegrid::initialize()
     cv::resizeWindow("Circlegrid corners", 640, 480);
     cv::startWindowThread();
   }
+
+  char* blobDetctorConfigPath = getenv("OPENCV_CIRCLES_BLOB_CONFIG");
+  if(blobDetctorConfigPath) {
+    cv::FileStorage fs(blobDetctorConfigPath, cv::FileStorage::READ);
+    if(fs.isOpened())
+      blobDetectorSettings.read(fs.root());
+    fs.release();
+  }
 }
 
 /// \brief initialize a checkerboard grid (cols*rows = (cols)*(rows) internal grid points)
@@ -67,9 +75,7 @@ bool GridCalibrationTargetCirclegrid::computeObservation(const cv::Mat & image,
   cv::Size patternSize(cols(), rows());
   cv::Mat centers(size(), 2, CV_64FC1);
 
-  cv::SimpleBlobDetector::Params params;
-  params.minRepeatability = 1;
-  cv::Ptr< cv::FeatureDetector > blobDetectorPtr = cv::SimpleBlobDetector::create(params);
+  cv::Ptr< cv::FeatureDetector > blobDetectorPtr = cv::SimpleBlobDetector::create(blobDetectorSettings);
 
   bool success = false;
   int gridFlags = _options.useAsymmetricCirclegrid ? cv::CALIB_CB_ASYMMETRIC_GRID: cv::CALIB_CB_SYMMETRIC_GRID;
