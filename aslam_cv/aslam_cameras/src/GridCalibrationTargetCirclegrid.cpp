@@ -38,8 +38,14 @@ void GridCalibrationTargetCirclegrid::initialize()
   char* blobDetctorConfigPath = getenv("OPENCV_CIRCLES_BLOB_CONFIG");
   if(blobDetctorConfigPath) {
     cv::FileStorage fs(blobDetctorConfigPath, cv::FileStorage::READ);
-    if(fs.isOpened())
+    if(fs.isOpened()) {
+      static bool warn_printed = false;
       blobDetectorSettings.read(fs.root());
+      if(!warn_printed) {
+          printf("Applied custom blob detector settings from file %s\n", blobDetctorConfigPath);
+          warn_printed = true;
+      }
+    }
     fs.release();
   }
 }
