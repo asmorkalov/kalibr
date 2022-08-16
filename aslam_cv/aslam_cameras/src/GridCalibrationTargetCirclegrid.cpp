@@ -36,7 +36,7 @@ void GridCalibrationTargetCirclegrid::initialize()
   }
 
   char* blobDetctorConfigPath = getenv("OPENCV_CIRCLES_BLOB_CONFIG");
-  if(blobDetctorConfigPath) {
+  if(blobDetctorConfigPath && (access(blobDetctorConfigPath, F_OK) == 0)) {
     cv::FileStorage fs(blobDetctorConfigPath, cv::FileStorage::READ);
     if(fs.isOpened()) {
       static bool warn_printed = false;
